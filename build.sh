@@ -8,6 +8,16 @@ DEFAULT_MASTER_IP="127.0.0.1"
 ROLE=${LOCUST_ROLE:-$DEFAULT_ROLE}
 MASTER_IP=${LOCUST_MASTER_IP:-$DEFAULT_MASTER_IP}
 
+# 检查 locust 是否安装
+if ! command -v locust &> /dev/null; then
+    echo "Locust not found, installing locust..."
+    pip3 install locust
+    if [ $? -ne 0 ]; then
+        echo "Failed to install locust. Exiting."
+        exit 1
+    fi
+fi
+
 # 检查角色并执行相应的命令
 if [ "$ROLE" == "master" ]; then
     echo "Starting Locust as master..."
