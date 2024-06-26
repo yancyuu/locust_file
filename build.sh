@@ -16,6 +16,12 @@ if command -v apt-get &> /dev/null; then
 elif command -v yum &> /dev/null; then
     echo "Using yum to install dependencies..."
     sudo yum install -y python3-devel gcc
+elif command -v dnf &> /dev/null; then
+    echo "Using dnf to install dependencies..."
+    sudo dnf install -y python3-devel gcc
+elif command -v brew &> /dev/null; then
+    echo "Using brew to install dependencies..."
+    brew install python gcc
 else
     echo "Unsupported package manager. Please install python3-dev and gcc manually."
     exit 1
@@ -31,15 +37,24 @@ if ! command -v locust &> /dev/null; then
     fi
 fi
 
+# 配置代理
+if [ -n "$HTTP_PROXY" ]; then
+    export http_proxy=$HTTP_PROXY
+fi
+if [ -n "$HTTPS_PROXY" ]; then
+    export https_proxy=$HTTPS_PROXY
+fi
 
 # 检查角色并执行相应的命令
 if [ "$ROLE" == "master" ]; then
     echo "Starting Locust as master..."
     locust -f locustfile.py --master
+    # 等待 worker 节点启动并连接
+    sleep 5
 elif [ "$ROLE" == "slave" ]; then
     echo "Starting Locust as worker..."
-    locust -f locustfile.py --worker --master-host=$MASTER_IP
     echo "Connect to master $MASTER_IP"
+    locust -f locustfile.py --worker --master-host=$MASTER_IP
 else
     echo "Invalid role specified. Please set LOCUST_ROLE to either 'master' or 'slave'."
     exit 1
