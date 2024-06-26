@@ -3,6 +3,8 @@
 # 设置默认的环境变量值
 DEFAULT_ROLE="master"
 DEFAULT_MASTER_IP="127.0.0.1"
+DEFAULT_MASTER_PORT=5557
+DEFAULT_WEB_PORT=8089
 
 # 读取环境变量，或者使用默认值
 ROLE=${LOCUST_ROLE:-$DEFAULT_ROLE}
@@ -48,13 +50,13 @@ fi
 # 检查角色并执行相应的命令
 if [ "$ROLE" == "master" ]; then
     echo "Starting Locust as master..."
-    locust -f locustfile.py --master
+    locust -f locustfile.py --master --web-host=0.0.0.0 --web-port=$WEB_PORT &
     # 等待 worker 节点启动并连接
     sleep 5
 elif [ "$ROLE" == "slave" ]; then
     echo "Starting Locust as worker..."
     echo "Connect to master $MASTER_IP"
-    locust -f locustfile.py --worker --master-host=$MASTER_IP
+    locust -f locustfile.py --worker --master-host=$MASTER_IP --master-port=$MASTER_PORT
 else
     echo "Invalid role specified. Please set LOCUST_ROLE to either 'master' or 'slave'."
     exit 1
