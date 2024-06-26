@@ -30,6 +30,7 @@ if [ "$ROLE" == "master" ]; then
 elif [ "$ROLE" == "slave" ]; then
     echo "Starting Locust as worker..."
     locust -f locustfile.py --worker --master-host=$MASTER_IP
+    echo "Connect to master $MASTER_IP"
 else
     echo "Invalid role specified. Please set LOCUST_ROLE to either 'master' or 'slave'."
     exit 1
