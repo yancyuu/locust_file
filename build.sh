@@ -8,20 +8,29 @@ DEFAULT_MASTER_IP="127.0.0.1"
 ROLE=${LOCUST_ROLE:-$DEFAULT_ROLE}
 MASTER_IP=${LOCUST_MASTER_IP:-$DEFAULT_MASTER_IP}
 
-if ! command -v locust &> /dev/null; then
-    echo "Locust not found, installing locust and dependencies..."
-    
-    # 更新包列表并安装 Python 头文件和开发工具
+# 检查包管理器并安装依赖
+if command -v apt-get &> /dev/null; then
+    echo "Using apt-get to install dependencies..."
     sudo apt-get update
     sudo apt-get install -y python3-dev gcc
-    
-    # 安装 locust
+elif command -v yum &> /dev/null; then
+    echo "Using yum to install dependencies..."
+    sudo yum install -y python3-devel gcc
+else
+    echo "Unsupported package manager. Please install python3-dev and gcc manually."
+    exit 1
+fi
+
+# 检查 locust 是否安装
+if ! command -v locust &> /dev/null; then
+    echo "Locust not found, installing locust..."
     pip install locust
     if [ $? -ne 0 ]; then
         echo "Failed to install locust. Exiting."
         exit 1
     fi
 fi
+
 
 # 检查角色并执行相应的命令
 if [ "$ROLE" == "master" ]; then
