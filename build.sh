@@ -8,10 +8,15 @@ DEFAULT_MASTER_IP="127.0.0.1"
 ROLE=${LOCUST_ROLE:-$DEFAULT_ROLE}
 MASTER_IP=${LOCUST_MASTER_IP:-$DEFAULT_MASTER_IP}
 
-# 检查 locust 是否安装
 if ! command -v locust &> /dev/null; then
-    echo "Locust not found, installing locust..."
-    pip3 install locust
+    echo "Locust not found, installing locust and dependencies..."
+    
+    # 更新包列表并安装 Python 头文件和开发工具
+    sudo apt-get update
+    sudo apt-get install -y python3-dev gcc
+    
+    # 安装 locust
+    pip install locust
     if [ $? -ne 0 ]; then
         echo "Failed to install locust. Exiting."
         exit 1
